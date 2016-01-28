@@ -1,14 +1,16 @@
 package perceptron;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import toolkit.*;
 
 public class Perceptron extends SupervisedLearner {
 	private Random rand;
-	private double[] weights;
-	private static final double LEARNING_RATE = 0.1;
+	private ArrayList<Double> weights;
+	private static final double LEARNING_RATE = .1;
 	private static final double THRESHOLD = 0;
+	private static final int EPOCHS_WITHOUT_IMPROVEMENT = 10;
 
 	public Perceptron(Random rand) {
 		this.rand = rand;
@@ -19,18 +21,21 @@ public class Perceptron extends SupervisedLearner {
 	{
 		if (features.rows() != labels.rows())
 			throw new Exception("Number of instances and number of outputs don't match");
-		int numFeatures = features.cols() - 1;
+		int numFeatures = features.cols();
 		int numWeights = numFeatures + 1;
 		
-		weights = new double[numWeights];
+		weights = new ArrayList<Double>(numWeights);
 		initWeights(numWeights);
 		
 		double bestPercentageCorrect = 0;
 		int epochsWithoutImprovement = 0;
+		int numEpochsRun = 0;
 		
-		while (epochsWithoutImprovement < 10)
+		while (epochsWithoutImprovement < EPOCHS_WITHOUT_IMPROVEMENT)
 		{
+			numEpochsRun++;
 			double percentageCorrect = runEpoch(features, labels);
+			System.out.println((1 - percentageCorrect));
 			if (percentageCorrect > bestPercentageCorrect)
 			{
 				bestPercentageCorrect = percentageCorrect;
@@ -39,6 +44,9 @@ public class Perceptron extends SupervisedLearner {
 			else
 				epochsWithoutImprovement++;
 		}
+		for (int i = 0; i < weights.size(); i++)
+			System.out.println("Weight " + i + ": " + weights.get(i));
+		System.out.println("Number of epochs run: " + numEpochsRun);
 	}
 
 	@Override
@@ -59,7 +67,7 @@ public class Perceptron extends SupervisedLearner {
 			if (predictionCorrect)
 				correctCount++;
 		}
-		double percentageCorrect = correctCount / features.rows();
+		double percentageCorrect = (double)correctCount / (double)features.rows();
 		
 		return percentageCorrect;
 	}
@@ -90,11 +98,11 @@ public class Perceptron extends SupervisedLearner {
 		
 		for (double attribute : instance)
 		{
-			result += attribute * weights[index];
+			result += attribute * weights.get(index);
 			index++;
 		}
 		// Bias weight, multiplied by 1
-		result += weights[index];
+		result += weights.get(index);
 		
 		double output = 0;
 		if (result > THRESHOLD)
@@ -106,13 +114,18 @@ public class Perceptron extends SupervisedLearner {
 	private void initWeights(int numWeights)
 	{
 		for (int i = 0; i < numWeights; i++)
-			weights[i] = rand.nextDouble();
+			weights.add(i, rand.nextDouble());
 	}
 	
 	private void updateWeights(double[] instance, double output, double targetOutput)
 	{
-		for (int i = 0; i < weights.length; i++)
-			weights[i] += (targetOutput - output) * instance[i] * LEARNING_RATE; 
+		for (int i = 0; i < weights.size(); i++)
+		{
+			double featureValue = 1;
+			if (i < (weights.size() - 1))
+				featureValue = instance[i];
+			weights.set(i, weights.get(i) + ((targetOutput - output) * featureValue * LEARNING_RATE));
+		}
 	}
 	//change in weight = (target - output)*learningRate*attribute
 }
