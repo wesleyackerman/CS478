@@ -215,7 +215,7 @@ public class Matrix {
 
 	// Returns the number of values associated with the specified attribute (or column)
 	// 0=continuous, 2=binary, 3=trinary, etc.
-	int valueCount(int col) { return m_enum_to_str.get(col).size(); }
+	public int valueCount(int col) { return m_enum_to_str.get(col).size(); }
 
 	// Shuffles the row order
 	void shuffle(Random rand) {
