@@ -228,7 +228,7 @@ public class Matrix {
 	}
 
 	// Shuffles the row order with a buddy matrix 
-	void shuffle(Random rand, Matrix buddy) {
+	public void shuffle(Random rand, Matrix buddy) {
 		for (int n = rows(); n > 0; n--) {
 			int i = rand.nextInt(n);
 			double[] tmp = row(n - 1);
@@ -328,7 +328,7 @@ public class Matrix {
 		}
 	}
 
-	void print() {
+	public void print() {
 		System.out.println("@RELATION Untitled");
 		for(int i = 0; i < m_attr_name.size(); i++) {
 			System.out.print("@ATTRIBUTE " + m_attr_name.get(i));

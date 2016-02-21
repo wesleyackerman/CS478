@@ -132,6 +132,14 @@ public class MLSystemManager {
 			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
 			double trainAccuracy = learner.measureAccuracy(trainFeatures, trainLabels, null);
 			System.out.println("Training set accuracy: " + trainAccuracy);
+			
+			if (learner.getClass() == NeuralNet.class)
+			{
+				NeuralNet net = (NeuralNet)learner;
+				double testMSE = net.getMSE(data.rows()-trainSize, testFeatures, testLabels);
+				System.out.println("Test Set MSE: " + testMSE);
+			}
+			
 			Matrix confusion = new Matrix();
 			double testAccuracy = learner.measureAccuracy(testFeatures, testLabels, confusion);
 			System.out.println("Test set accuracy: " + testAccuracy);
