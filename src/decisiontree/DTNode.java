@@ -1,17 +1,16 @@
 package decisiontree;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import toolkit.Matrix;
 
 public class DTNode {
-	private String label;
+	private Double label;
 	private Matrix instances;
 	private Matrix labels;
 	private Map<Integer, DTNode> children;
-	private ArrayList<Integer> featuresAlreadyUsed;
+	private int featureSplitOn;
 	
 	public DTNode()
 	{
@@ -19,7 +18,16 @@ public class DTNode {
 		this.instances = new Matrix();
 		this.labels = new Matrix();
 		this.children = new HashMap<Integer,DTNode>();
-		this.featuresAlreadyUsed = new ArrayList<Integer>();
+		this.featureSplitOn = -1;
+	}
+	
+	public DTNode(Matrix instances, Matrix labels)
+	{
+		this.label = null;
+		this.instances = instances;
+		this.labels = labels;
+		this.children = new HashMap<Integer,DTNode>();
+		this.featureSplitOn = -1;
 	}
 
 	public void setInstances(Matrix instances, Matrix labels)
@@ -38,9 +46,14 @@ public class DTNode {
 		return instances.rows();
 	}
 	
-	public boolean featureAlreadyUsed(int featureCol)
+	public void setInstances(Matrix instances)
 	{
-		return this.featuresAlreadyUsed.contains(featureCol);
+		this.instances = instances;
+	}
+	
+	public void setLabels(Matrix labels)
+	{
+		this.labels = labels;
 	}
 	
 	public int getNumFeatureValues(int featureCol)
@@ -68,6 +81,22 @@ public class DTNode {
 				count++;
 		}
 		return count;
+	}
+	
+	/*
+	 * Returns the label if all instances associated with the node have the same label.
+	 * Otherwise, returns a -1.
+	 */
+	public double isNodePure()
+	{
+		int numInstances = this.getNumInstances();
+		double firstLabel = this.labels.get(0, 0);
+		for (int i = 1; i < numInstances; i++)
+		{
+			if (this.labels.get(i, 0) != firstLabel)
+				return -1;
+		}
+		return firstLabel;
 	}
 	
 	public void getInstancesOfFeatureType(int featureCol, int featureType, 
@@ -102,5 +131,52 @@ public class DTNode {
 	public double logBase2(double x)
 	{
 		return (Math.log(x)/Math.log(2));
+	}
+	
+	public void setLabel(double label)
+	{
+		this.label = label;
+	}
+	
+	public double getLabel()
+	{
+		return this.label;
+	}
+	
+	public void setFeatureSplitOn(int featureSplitOn)
+	{
+		this.featureSplitOn = featureSplitOn;
+	}
+	
+	public int getFeatureSplitOn()
+	{
+		return this.featureSplitOn;
+	}
+	
+	public boolean isEmpty()
+	{
+		if (instances.rows() == 0)
+			return true;
+		return false;
+	}
+	
+	public DTNode getChild(double featureValue)
+	{
+		return this.children.get(featureValue);
+	}
+	
+	public void addChild(DTNode child, int featureValue)
+	{
+		this.children.put(featureValue, child);
+	}
+	
+	public double getMostCommonLabel()
+	{
+		return this.labels.mostCommonValue(0);
+	}
+	
+	public boolean hasChildren()
+	{
+		return !this.children.isEmpty();
 	}
 }

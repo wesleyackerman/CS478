@@ -286,7 +286,7 @@ public class Matrix {
 	}
 
 	// Returns the most common value in the specified column
-	double mostCommonValue(int col) {
+	public double mostCommonValue(int col) {
 		TreeMap<Double, Integer> tm = new TreeMap<Double, Integer>();
 		for(int i = 0; i < rows(); i++) {
 			double v = get(i, col);

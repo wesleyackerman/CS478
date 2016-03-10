@@ -4,13 +4,10 @@ package toolkit;
 // See http://creativecommons.org/publicdomain/zero/1.0/
 // ----------------------------------------------------------------
 
-
-import java.util.ArrayList;
 import java.util.Random;
 
 import neuralnet.NeuralNet;
-
-import java.io.File;
+import decisiontree.DecisionTree;
 import perceptron.*;
 
 public class MLSystemManager {
@@ -23,7 +20,7 @@ public class MLSystemManager {
 		if (model.equals("baseline")) return new BaselineLearner();
 		else if (model.equals("perceptron")) return new Perceptron(rand);
 		else if (model.equals("neuralnet")) return new NeuralNet(rand);
-		// else if (model.equals("decisiontree")) return new DecisionTree();
+		else if (model.equals("decisiontree")) return new DecisionTree();
 		// else if (model.equals("knn")) return new InstanceBasedLearner();
 		else throw new Exception("Unrecognized model: " + model);
 	}
