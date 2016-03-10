@@ -13,6 +13,8 @@ public class DecisionTree extends SupervisedLearner
 		root.setInstances(features, labels);
 		
 		
+		
+		
 	}
 
 	@Override
@@ -21,6 +23,37 @@ public class DecisionTree extends SupervisedLearner
 		
 	}
 	
+	private void divideNode(DTNode node)
+	{
+		int numFeatures = node.getNumFeatures();
+		for (int i = 0; i < numFeatures; i++)
+		{
+			if (!node.featureAlreadyUsed(i))
+			{
+				this.calcInfoGained(node, i);
+			
+				
+			}
+			
+			
+			
+		}
+		
+		
+		
+	}
 	
-
+	private double calcInfoGained(DTNode node, int featureCol)
+	{
+		double info = node.calcInfo();
+		int numFeatureValues = node.getNumFeatureValues(featureCol);
+		for (int i = 0; i < numFeatureValues; i++)
+		{
+			
+			
+			
+		}
+		
+		return 0;
+	}
 }

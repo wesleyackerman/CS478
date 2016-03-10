@@ -208,10 +208,10 @@ public class Matrix {
 	String attrName(int col) { return m_attr_name.get(col); }
 
 	// Set the name of the specified attribute
-	void setAttrName(int col, String name) { m_attr_name.set(col, name); }
+	public void setAttrName(int col, String name) { m_attr_name.set(col, name); }
 
 	// Returns the name of the specified value
-	String attrValue(int attr, int val) { return m_enum_to_str.get(attr).get(val); }
+	public String attrValue(int attr, int val) { return m_enum_to_str.get(attr).get(val); }
 
 	// Returns the number of values associated with the specified attribute (or column)
 	// 0=continuous, 2=binary, 3=trinary, etc.
