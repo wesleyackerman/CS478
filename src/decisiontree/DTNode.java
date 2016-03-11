@@ -1,6 +1,8 @@
 package decisiontree;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import toolkit.Matrix;
@@ -10,15 +12,17 @@ public class DTNode {
 	private Matrix instances;
 	private Matrix labels;
 	private Map<Integer, DTNode> children;
+	private List<Integer> featuresUsed;
 	private int featureSplitOn;
 	
 	public DTNode()
 	{
 		this.label = null;
-		this.instances = new Matrix();
-		this.labels = new Matrix();
+		this.instances = null;
+		this.labels = null;
 		this.children = new HashMap<Integer,DTNode>();
 		this.featureSplitOn = -1;
+		this.featuresUsed = new ArrayList<Integer>();
 	}
 	
 	public DTNode(Matrix instances, Matrix labels)
@@ -28,6 +32,7 @@ public class DTNode {
 		this.labels = labels;
 		this.children = new HashMap<Integer,DTNode>();
 		this.featureSplitOn = -1;
+		this.featuresUsed = new ArrayList<Integer>();
 	}
 
 	public void setInstances(Matrix instances, Matrix labels)
@@ -123,14 +128,16 @@ public class DTNode {
 		{
 			int count = this.getNumInstancesOfOutputType(i);
 			instanceCountPerClass.put(i, count);
-			infoSum -= (count / totalInstances) * logBase2(count / totalInstances);
+			infoSum -= ((double)count / (double)totalInstances) * logBase2((double)count / (double)totalInstances);
 		}
 		return infoSum;
 	}
 	
 	public double logBase2(double x)
 	{
-		return (Math.log(x)/Math.log(2));
+		if (x == 0)
+			return 0;
+		return (Math.log(x) / Math.log(2));
 	}
 	
 	public void setLabel(double label)
@@ -138,7 +145,7 @@ public class DTNode {
 		this.label = label;
 	}
 	
-	public double getLabel()
+	public Double getLabel()
 	{
 		return this.label;
 	}
@@ -162,7 +169,7 @@ public class DTNode {
 	
 	public DTNode getChild(double featureValue)
 	{
-		return this.children.get(featureValue);
+		return this.children.get((int)featureValue);
 	}
 	
 	public void addChild(DTNode child, int featureValue)
@@ -178,5 +185,50 @@ public class DTNode {
 	public boolean hasChildren()
 	{
 		return !this.children.isEmpty();
+	}
+	
+	public int getChildCount()
+	{
+		return this.children.size();
+	}
+	
+	public Matrix getInstances()
+	{
+		return this.instances;
+	}
+	
+	public Matrix getLabels()
+	{
+		return this.labels;
+	}
+	
+	public int getColumnCount()
+	{
+		return this.instances.cols();
+	}
+	
+	public void addFeatureUsed(int feature)
+	{
+		this.featuresUsed.add(feature);
+	}
+	
+	public List<Integer> getFeaturesUsed()
+	{
+		return this.featuresUsed;
+	}
+	
+	public void setFeaturesUsed(List<Integer> featuresUsed)
+	{
+		this.featuresUsed = featuresUsed;
+	}
+	
+	public boolean isFeatureUsed(int feature)
+	{
+		return this.featuresUsed.contains(feature);
+	}
+	
+	public int getFeaturesUsedCount()
+	{
+		return this.featuresUsed.size();
 	}
 }

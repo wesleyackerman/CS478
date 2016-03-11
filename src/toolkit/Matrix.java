@@ -314,7 +314,7 @@ public class Matrix {
 		return val;
 	}
 
-	void normalize() {
+	public void normalize() {
 		for(int i = 0; i < cols(); i++) {
 			if(valueCount(i) == 0) {
 				double min = columnMin(i);
@@ -359,5 +359,20 @@ public class Matrix {
 			}
 			System.out.println("");
 		}
+	}
+	
+	public void replaceUnknowns()
+	{
+		for (int i = 0; i < this.rows(); i++)
+		{
+			for (int j = 0; j < this.cols(); j++)
+			{
+				double entry = this.get(i, j);
+				if (entry == MISSING)
+					this.set(i, j, this.mostCommonValue(j));
+			}
+		}
+		
+		
 	}
 }
