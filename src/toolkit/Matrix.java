@@ -372,7 +372,5 @@ public class Matrix {
 					this.set(i, j, this.mostCommonValue(j));
 			}
 		}
-		
-		
 	}
 }

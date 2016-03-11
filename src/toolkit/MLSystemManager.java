@@ -155,6 +155,7 @@ public class MLSystemManager {
 			System.out.println("Number of folds: " + folds);
 			int reps = 1;
 			double sumAccuracy = 0.0;
+			double sumTrainAccuracy = 0.0;
 			double elapsedTime = 0.0;
 			for(int j = 0; j < reps; j++) {
 				data.shuffle(rand);
@@ -171,6 +172,11 @@ public class MLSystemManager {
 					learner.train(trainFeatures, trainLabels);
 					elapsedTime += System.currentTimeMillis() - startTime;
 					double accuracy = learner.measureAccuracy(testFeatures, testLabels, null);
+					//TODO For DT, delete later
+					double trainingAccuracy = learner.measureAccuracy(trainFeatures, trainLabels, null);
+					System.out.println("Rep=" + j + ", Fold=" + i + ", TrainAccuracy=" + trainingAccuracy);
+					//END
+					sumTrainAccuracy += trainingAccuracy;
 					sumAccuracy += accuracy;
 					System.out.println("Rep=" + j + ", Fold=" + i + ", Accuracy=" + accuracy);
 				}
@@ -178,6 +184,7 @@ public class MLSystemManager {
 			elapsedTime /= (reps * folds);
 			System.out.println("Average time to train (in seconds): " + elapsedTime / 1000.0);
 			System.out.println("Mean accuracy=" + (sumAccuracy / (reps * folds)));
+			System.out.println("Mean Training Accuracy=" + (sumTrainAccuracy / (reps * folds)));
 		}
 	}
 

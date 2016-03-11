@@ -8,6 +8,7 @@ import java.util.Map;
 import toolkit.Matrix;
 
 public class DTNode {
+	private static int nodeCount = 0;
 	private Double label;
 	private Matrix instances;
 	private Matrix labels;
@@ -33,6 +34,22 @@ public class DTNode {
 		this.children = new HashMap<Integer,DTNode>();
 		this.featureSplitOn = -1;
 		this.featuresUsed = new ArrayList<Integer>();
+	}
+	
+	public DTNode(DTNode that)
+	{
+		if (that == null)
+			return;
+		this.label = that.label;
+		this.instances = that.instances;
+		this.featureSplitOn = that.featureSplitOn;
+		this.featuresUsed = that.featuresUsed;
+		this.children = new HashMap<Integer,DTNode>();
+		for (int i = 0; i < that.children.size(); i++)
+		{
+			DTNode child = new DTNode(that.children.get(i));
+			this.children.put(i, child);
+		}
 	}
 
 	public void setInstances(Matrix instances, Matrix labels)
@@ -121,13 +138,23 @@ public class DTNode {
 	{
 		int totalInstances = instances.rows();
 		int outputClassCount = labels.valueCount(0);
-		Map<Integer,Integer> instanceCountPerClass = 
-				new HashMap<Integer,Integer>(outputClassCount);
 		double infoSum = 0;
 		for (int i = 0; i < outputClassCount; i++)
 		{
 			int count = this.getNumInstancesOfOutputType(i);
-			instanceCountPerClass.put(i, count);
+			infoSum -= ((double)count / (double)totalInstances) * logBase2((double)count / (double)totalInstances);
+		}
+		return infoSum;
+	}
+	
+	public double calcSplitInfo(int featureCol)
+	{
+		int totalInstances = instances.rows();
+		int featureValueCount = this.getNumFeatureValues(featureCol);
+		double infoSum = 0;
+		for (int i = 0; i < featureValueCount; i++)
+		{
+			int count = this.getNumInstancesOfFeatureType(featureCol, i);
 			infoSum -= ((double)count / (double)totalInstances) * logBase2((double)count / (double)totalInstances);
 		}
 		return infoSum;
@@ -230,5 +257,25 @@ public class DTNode {
 	public int getFeaturesUsedCount()
 	{
 		return this.featuresUsed.size();
+	}
+	
+	public void incNodeCount()
+	{
+		nodeCount++;
+	}
+	
+	public void decNodeCount()
+	{
+		nodeCount--;
+	}
+	
+	public int getNodeCount()
+	{
+		return nodeCount;
+	}
+	
+	public void removeChild(int key)
+	{
+		this.children.remove(key);
 	}
 }
