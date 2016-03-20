@@ -9,20 +9,25 @@ import toolkit.SupervisedLearner;
 public class InstanceBasedLearner extends SupervisedLearner {
 	private Matrix features;
 	private Matrix labels;
-	private final int kNearest = 3;
+	private final int kNearest = 15;
+	private final double MISSING = Double.MAX_VALUE;
 	
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		this.features = features;
-		this.labels = labels;	
+		this.labels = labels;
+		this.features.normalize();
+		this.labels.normalize();
 	}
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		ArrayList<Integer> nearestNeighbors = new ArrayList<Integer>(kNearest);
 		ArrayList<Double> nnDistances = new ArrayList<Double>(kNearest);
 		// Set each of the NN distances to infinity, since there are no NN yet
-		for (int i = 0; i < kNearest; i++)
-			nnDistances.set(i, Double.POSITIVE_INFINITY);
+		for (int i = 0; i < kNearest; i++) {
+			nnDistances.add(i, Double.POSITIVE_INFINITY);
+			nearestNeighbors.add(i, -1);
+		}
 		
 		for (int i = 0; i < this.features.rows(); i++) {
 			double distance = this.calcDistance(features, this.features.row(i));
@@ -42,10 +47,11 @@ public class InstanceBasedLearner extends SupervisedLearner {
 		double totalDistance = 0;
 		for (int i = 0; i < this.features.cols(); i++) {
 			if (this.features.valueCount(i) == 0) {
-				double dist = instance1[i] - instance2[i];
+				double dist = this.getEuclideanDistance(instance1[i], instance2[i]);
 				totalDistance += Math.pow(dist, 2);
 			} else {
-				totalDistance += this.getNominalDistance(instance1[i], instance2[i]);
+				double dist = this.getNominalDistance(instance1[i], instance2[i]);
+				totalDistance += Math.pow(dist, 2);
 			}
 		}
 		totalDistance = Math.sqrt(totalDistance);
@@ -92,14 +98,6 @@ public class InstanceBasedLearner extends SupervisedLearner {
 		}
 		return bestLabel;
 	}
-
-	// Change to a better distance metric?
-	private double getNominalDistance(double instance1, double instance2) {
-		if (instance1 == instance2)
-			return 0;
-		else
-			return 1;
-	}
 	
 	private double getMostCommonLabel(ArrayList<Integer> nearestNeighbors) {
 		HashMap<Double, Integer> labelCount = new HashMap<Double, Integer>();
@@ -128,7 +126,7 @@ public class InstanceBasedLearner extends SupervisedLearner {
 	private double getUnweightedRegressionLabel(ArrayList<Integer> nearestNeighbor, ArrayList<Double> nnDistances) {
 		ArrayList<Double> weights = new ArrayList<Double>(kNearest);
 		for (int i = 0; i < kNearest; i++) 
-			weights.set(i, 1.0);
+			weights.add(i, 1.0);
 	
 		return this.getRegressionLabel(nearestNeighbor, nnDistances, weights);
 	}
@@ -136,7 +134,7 @@ public class InstanceBasedLearner extends SupervisedLearner {
 	private double getWeightedRegressionLabel(ArrayList<Integer> nearestNeighbor, ArrayList<Double> nnDistances) {
 		ArrayList<Double> weights = new ArrayList<Double>(kNearest);
 		for (int i = 0; i < kNearest; i++)
-			weights.set(i, (1 / Math.pow(nnDistances.get(i), 2)));
+			weights.add(i, (1 / Math.pow(nnDistances.get(i), 2)));
 		
 		return this.getRegressionLabel(nearestNeighbor, nnDistances, weights);
 	}
@@ -153,4 +151,20 @@ public class InstanceBasedLearner extends SupervisedLearner {
 		
 		return (weightedLabelsSum / weightsSum);
 	}
+	
+	// Change to a better distance metric?
+		private double getNominalDistance(double instance1, double instance2) {
+			if ((instance1 == MISSING) || (instance2 == MISSING))
+				return .75;
+			if (instance1 == instance2)
+				return 0;
+			else
+				return 1;
+		}
+		
+		private double getEuclideanDistance(double instance1, double instance2) {
+			if ((instance1 == MISSING) || (instance2 == MISSING))
+				return .75;
+			return instance1 - instance2; 
+		}
 }
