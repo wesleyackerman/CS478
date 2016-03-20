@@ -102,7 +102,13 @@ public class MLSystemManager {
 			Matrix testFeatures = new Matrix(testData, 0, 0, testData.rows(), testData.cols() - 1);
 			Matrix testLabels = new Matrix(testData, 0, testData.cols() - 1, testData.rows(), 1);
 			Matrix confusion = new Matrix();
+			
+			double startTestTime = System.currentTimeMillis();
 			double testAccuracy = learner.measureAccuracy(testFeatures, testLabels, confusion);
+			if (learner instanceof InstanceBasedLearner) {
+				double testTime = System.currentTimeMillis() - startTestTime;
+				System.out.println("Time to test (in seconds): " + testTime / 1000.0);
+			}
 			System.out.println("Test set accuracy: " + testAccuracy);
 			if(printConfusionMatrix) {
 				System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");

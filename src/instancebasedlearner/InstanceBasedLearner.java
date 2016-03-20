@@ -2,6 +2,7 @@ package instancebasedlearner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import toolkit.Matrix;
 import toolkit.SupervisedLearner;
@@ -14,6 +15,16 @@ public class InstanceBasedLearner extends SupervisedLearner {
 	
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
+		/*int rowCount = features.rows();
+		if (rowCount > 1000) {
+			rowCount /= 4;
+			features.shuffle(new Random(), labels);
+			Matrix newFeatures = new Matrix(features, 0, 0, rowCount, features.cols());
+			Matrix newLabels = new Matrix(labels, 0, 0, rowCount, labels.cols());
+			this.features = newFeatures;
+			this.labels = newLabels;
+		}*/
+		
 		this.features = features;
 		this.labels = labels;
 		this.features.normalize();
@@ -73,6 +84,7 @@ public class InstanceBasedLearner extends SupervisedLearner {
 			double label = this.labels.get(index, 0);
 			int count = 1;
 			double distance = nnDistances.get(i);
+			distance = (1 / Math.pow(distance, 2));
 			
 			if (labelCount.containsKey(label))
 				count = labelCount.get(label);
@@ -88,9 +100,7 @@ public class InstanceBasedLearner extends SupervisedLearner {
 		for (double label : labelCount.keySet()) {
 			
 			double weight = weights.get(label);
-			weight /= labelCount.get(label);
-			weight = (1 / Math.pow(weight, 2));
-			
+						
 			if (weight * labelCount.get(label) > bestLabelCount) {
 				bestLabel = label;
 				bestLabelCount = weight * labelCount.get(label);
