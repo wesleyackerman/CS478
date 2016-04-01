@@ -6,6 +6,7 @@ package toolkit;
 
 import java.util.Random;
 
+import clustering.KMeansCluster;
 import neuralnet.NeuralNet;
 import decisiontree.DecisionTree;
 import instancebasedlearner.InstanceBasedLearner;
@@ -16,13 +17,14 @@ public class MLSystemManager {
 	/**
 	 *  When you make a new learning algorithm, you should add a line for it to this method.
 	 */
-	public SupervisedLearner getLearner(String model, Random rand) throws Exception
+	public SupervisedLearner getLearner(String model, Random rand, int k) throws Exception
 	{
 		if (model.equals("baseline")) return new BaselineLearner();
 		else if (model.equals("perceptron")) return new Perceptron(rand);
 		else if (model.equals("neuralnet")) return new NeuralNet(rand);
 		else if (model.equals("decisiontree")) return new DecisionTree();
 		else if (model.equals("knn")) return new InstanceBasedLearner();
+		else if (model.equals("clustering")) return new KMeansCluster(k);
 		else throw new Exception("Unrecognized model: " + model);
 	}
 
@@ -42,8 +44,13 @@ public class MLSystemManager {
 		boolean printConfusionMatrix = parser.getVerbose();
 		boolean normalize = parser.getNormalize();
 
+		int k = 0;
+		if (learnerName.equals("clustering")) {
+			k = args.length-1;
+		}
+		
 		// Load the model
-		SupervisedLearner learner = getLearner(learnerName, rand);
+		SupervisedLearner learner = getLearner(learnerName, rand, k);
 
 		// Load the ARFF file
 		Matrix data = new Matrix();
@@ -73,6 +80,9 @@ public class MLSystemManager {
 			learner.train(features, labels);
 			double elapsedTime = System.currentTimeMillis() - startTime;
 			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
+			if (learner instanceof KMeansCluster) {
+				return;
+			}
 			double accuracy = learner.measureAccuracy(features, labels, confusion);
 			System.out.println("Training set accuracy: " + accuracy);
 			if(printConfusionMatrix) {
