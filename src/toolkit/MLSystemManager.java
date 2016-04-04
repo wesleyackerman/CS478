@@ -44,10 +44,7 @@ public class MLSystemManager {
 		boolean printConfusionMatrix = parser.getVerbose();
 		boolean normalize = parser.getNormalize();
 
-		int k = 0;
-		if (learnerName.equals("clustering")) {
-			k = args.length-1;
-		}
+		int k = parser.getK();
 		
 		// Load the model
 		SupervisedLearner learner = getLearner(learnerName, rand, k);
@@ -73,7 +70,7 @@ public class MLSystemManager {
 		if (evalMethod.equals("training"))
 		{
 			System.out.println("Calculating accuracy on training set...");
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
+			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() );//- 1); TODO
 			Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
 			Matrix confusion = new Matrix();
 			double startTime = System.currentTimeMillis();
@@ -216,6 +213,7 @@ public class MLSystemManager {
 		String evalExtra;
 		boolean verbose;
 		boolean normalize;
+		int k;
 
 		//You can add more options for specific learning models if you wish
 		public ArgParser(String[] argv) {
@@ -264,6 +262,10 @@ public class MLSystemManager {
 								System.exit(0);
 							}
 						}
+						else if (argv[i].equals("-K"))
+						{
+							k = Integer.parseInt(argv[++i]);
+						}
 						else
 						{
 							System.out.println("Invalid parameter: " + argv[i]);
@@ -310,6 +312,7 @@ public class MLSystemManager {
 		public String getEvalParameter() { return evalExtra; }
 		public boolean getVerbose() { return verbose; } 
 		public boolean getNormalize() { return normalize; }
+		public int getK() {return k;}
 	}
 
 	public static void main(String[] args) throws Exception
